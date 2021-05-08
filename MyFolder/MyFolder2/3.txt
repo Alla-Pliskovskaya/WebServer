@@ -1,0 +1,64 @@
+package server;
+
+import java.io.File;
+
+public class FileWorker {
+    private final String path;
+    public FileWorker(String path) {
+        this.path = path;
+    }
+    public Boolean isRecursive;
+    public void execute(IExecutable ex)
+    {
+        var file_or_dir = new File(path);
+        if (isRecursive) {
+
+            File root = file_or_dir;
+            File[] list = root.listFiles();
+
+            if (list == null) return;
+
+            for (File f : list) {
+                if (f.isDirectory()) {
+                    walk(f.getAbsolutePath());
+                } else {
+                    ex.process(f);
+                }
+            }
+        } else if (file_or_dir.isDirectory()) {
+            for (File file : file_or_dir.listFiles()) {
+                if (file.isDirectory()) {
+                    return;
+                } else {
+                    ex.process(file);
+                }
+            }
+        } else ex.process(file_or_dir);
+
+
+    }
+
+    public File walk(String path ) {
+
+        File root = new File( path );
+        File[] list = root.listFiles();
+
+        if (list == null) return null;
+
+        for ( File f : list ) {
+            if ( f.isDirectory() ) {
+                walk( f.getAbsolutePath() );
+            }
+            else {
+                return f;
+            }
+        }
+        return null;
+    }
+
+    public static void main(String[] args) {
+        var fw = new FileWorker("C:\\Users\\��\\Desktop\\Help");
+        fw.isRecursive = true;
+        fw.execute(new MD5Executor());
+    }
+}
